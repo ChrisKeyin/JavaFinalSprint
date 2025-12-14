@@ -26,3 +26,11 @@ Dec. 14, 2025 3:05:35 P.M. com.gymmanagement.util.DBConnection <clinit>
 INFO: PostgreSQL JDBC driver loaded successfully.
 Dec. 14, 2025 3:05:35 P.M. com.gymmanagement.service.UserService login
 INFO: User logged in successfully: Admin (ADMIN)
+Dec. 14, 2025 3:30:05 P.M. com.gymmanagement.app.GymManagementApp run
+INFO: Gym Management Application started.
+Dec. 14, 2025 3:30:19 P.M. com.gymmanagement.util.DBConnection <clinit>
+INFO: PostgreSQL JDBC driver loaded successfully.
+Dec. 14, 2025 3:30:20 P.M. com.gymmanagement.service.UserService login
+INFO: User logged in successfully: Admin (ADMIN)
+Dec. 14, 2025 3:30:31 P.M. com.gymmanagement.app.GymManagementApp run
+INFO: Application exited by user.
