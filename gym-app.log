@@ -1,0 +1,28 @@
+Dec. 14, 2025 11:54:34 A.M. com.gymmanagement.util.DBConnection <clinit>
+INFO: PostgreSQL JDBC driver loaded successfully.
+Dec. 14, 2025 11:54:35 A.M. com.gymmanagement.app.TestConnection main
+INFO: Database connection test succeeded.
+Dec. 14, 2025 2:48:19 P.M. com.gymmanagement.app.GymManagementApp run
+INFO: Gym Management Application started.
+Dec. 14, 2025 2:49:19 P.M. com.gymmanagement.util.DBConnection <clinit>
+INFO: PostgreSQL JDBC driver loaded successfully.
+Dec. 14, 2025 2:49:20 P.M. com.gymmanagement.dao.UserDAO createUser
+INFO: Created user: Admin with role ADMIN
+Dec. 14, 2025 2:49:20 P.M. com.gymmanagement.service.UserService registerUser
+INFO: User registered successfully: Admin (ADMIN)
+Dec. 14, 2025 2:49:48 P.M. com.gymmanagement.service.UserService login
+WARNING: Login failed: incorrect password for username (Admin)
+Dec. 14, 2025 2:49:58 P.M. com.gymmanagement.service.UserService login
+WARNING: Login failed: username not found (admin)
+Dec. 14, 2025 2:50:10 P.M. com.gymmanagement.service.UserService login
+INFO: User logged in successfully: Admin (ADMIN)
+Dec. 14, 2025 3:05:10 P.M. com.gymmanagement.util.DBConnection <clinit>
+INFO: PostgreSQL JDBC driver loaded successfully.
+Dec. 14, 2025 3:05:10 P.M. com.gymmanagement.app.TestConnection main
+INFO: Database connection test succeeded.
+Dec. 14, 2025 3:05:17 P.M. com.gymmanagement.app.GymManagementApp run
+INFO: Gym Management Application started.
+Dec. 14, 2025 3:05:35 P.M. com.gymmanagement.util.DBConnection <clinit>
+INFO: PostgreSQL JDBC driver loaded successfully.
+Dec. 14, 2025 3:05:35 P.M. com.gymmanagement.service.UserService login
+INFO: User logged in successfully: Admin (ADMIN)
