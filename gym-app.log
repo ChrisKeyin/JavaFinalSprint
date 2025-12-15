@@ -34,3 +34,23 @@ Dec. 14, 2025 3:30:20 P.M. com.gymmanagement.service.UserService login
 INFO: User logged in successfully: Admin (ADMIN)
 Dec. 14, 2025 3:30:31 P.M. com.gymmanagement.app.GymManagementApp run
 INFO: Application exited by user.
+Dec. 15, 2025 9:48:43 A.M. com.gymmanagement.app.GymManagementApp run
+INFO: Gym Management Application started.
+Dec. 15, 2025 9:49:48 A.M. com.gymmanagement.util.DBConnection <clinit>
+INFO: PostgreSQL JDBC driver loaded successfully.
+Dec. 15, 2025 9:49:49 A.M. com.gymmanagement.dao.UserDAO createUser
+INFO: Created user: Chris with role TRAINER
+Dec. 15, 2025 9:49:49 A.M. com.gymmanagement.service.UserService registerUser
+INFO: User registered successfully: Chris (TRAINER)
+Dec. 15, 2025 9:50:18 A.M. com.gymmanagement.dao.UserDAO createUser
+INFO: Created user: Kate with role MEMBER
+Dec. 15, 2025 9:50:18 A.M. com.gymmanagement.service.UserService registerUser
+INFO: User registered successfully: Kate (MEMBER)
+Dec. 15, 2025 9:50:31 A.M. com.gymmanagement.service.UserService login
+WARNING: Login failed: invalid credentials for username: chris
+Dec. 15, 2025 9:50:40 A.M. com.gymmanagement.service.UserService login
+INFO: User logged in successfully: Chris (TRAINER)
+Dec. 15, 2025 9:51:25 A.M. com.gymmanagement.dao.WorkoutClassDAO createWorkoutClass
+INFO: Created workout class: Yoga by trainerId=2
+Dec. 15, 2025 9:51:25 A.M. com.gymmanagement.service.WorkoutClassService createClass
+INFO: Workout class created by trainerId=2, type=Yoga

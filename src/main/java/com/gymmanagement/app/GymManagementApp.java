@@ -20,18 +20,27 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Logger;
 
+/**
+ * Main application class for the Gym Management System.
+ * Handles user interaction through a menu-driven CLI interface.
+ * Supports three user roles: Admin, Trainer, and Member, each with unique functionality.
+ */
 public class GymManagementApp {
 
     private static final Logger LOGGER = LoggerUtil.getLogger();
     private static final DateTimeFormatter DATE_TIME_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
+    // Service instances for business logic
     private final UserService userService;
     private final MembershipService membershipService;
     private final WorkoutClassService workoutClassService;
     private final GymMerchService gymMerchService;
     private final Scanner scanner;
 
+    /**
+     * Constructor that initializes all services and the scanner for user input.
+     */
     public GymManagementApp() {
         this.userService = new UserService();
         this.membershipService = new MembershipService();
@@ -40,11 +49,19 @@ public class GymManagementApp {
         this.scanner = new Scanner(System.in);
     }
 
+    /**
+     * Entry point for the application.
+     * Creates an instance of GymManagementApp and starts the main loop.
+     */
     public static void main(String[] args) {
         GymManagementApp app = new GymManagementApp();
         app.run();
     }
 
+    /**
+     * Main application loop that displays the initial menu and handles user choices.
+     * Routes users to registration or login based on their selection.
+     */
     public void run() {
         LOGGER.info("Gym Management Application started.");
         boolean running = true;
@@ -78,6 +95,10 @@ public class GymManagementApp {
         }
     }
 
+    /**
+     * Securely reads a password from the console.
+     * Uses System.console() if available to hide input, falls back to standard input otherwise.
+     */
     private String readPassword(String prompt) {
         Console console = System.console();
         if (console != null) {
@@ -92,6 +113,10 @@ public class GymManagementApp {
         }
     }
 
+    /**
+     * Handles new user registration.
+     * Collects user information (username, password, email, phone, address) and assigns a role.
+     */
     private void handleRegistration() {
         System.out.println("\n--- User Registration ---");
 
@@ -138,6 +163,10 @@ public class GymManagementApp {
         }
     }
 
+    /**
+     * Handles user login authentication.
+     * Verifies credentials and routes the authenticated user to their respective menu based on role.
+     */
     private void handleLogin() {
         System.out.println("\n--- Login ---");
 
@@ -169,6 +198,9 @@ public class GymManagementApp {
         }
     }
 
+    /**
+     * Admin menu providing access to user management, membership tracking, and merchandise management.
+     */
     private void adminMenu(User admin) {
         boolean stay = true;
         while (stay) {
@@ -205,6 +237,9 @@ public class GymManagementApp {
         }
     }
 
+    /**
+     * Displays all registered users in the system.
+     */
     private void showAllUsers() {
         List<User> users = userService.getAllUsers();
         System.out.println("\n--- All Users ---");
@@ -213,6 +248,9 @@ public class GymManagementApp {
         }
     }
 
+    /**
+     * Deletes a user from the system by their ID.
+     */
     private void deleteUserById() {
         System.out.print("Enter user ID to delete: ");
         String idStr = scanner.nextLine().trim();
@@ -229,6 +267,9 @@ public class GymManagementApp {
         }
     }
 
+    /**
+     * Displays all memberships and calculates total revenue from all memberships.
+     */
     private void showAllMembershipsAndRevenue() {
         List<Membership> memberships = membershipService.getAllMemberships();
         System.out.println("\n--- All Memberships ---");
@@ -239,6 +280,9 @@ public class GymManagementApp {
         System.out.println("Total Membership Revenue: $" + totalRevenue);
     }
 
+    /**
+     * Admin submenu for managing gym merchandise (add, view, check stock value).
+     */
     private void adminMerchMenu() {
         boolean stay = true;
         while (stay) {
@@ -271,6 +315,9 @@ public class GymManagementApp {
         }
     }
 
+    /**
+     * Adds a new merchandise item to the gym's inventory.
+     */
     private void addMerchItem() {
         System.out.print("Enter merch name: ");
         String name = scanner.nextLine().trim();
@@ -299,6 +346,9 @@ public class GymManagementApp {
         }
     }
 
+    /**
+     * Displays all merchandise items available in the gym.
+     */
     private void listAllMerch() {
         List<GymMerch> merchList = gymMerchService.getAllMerch();
         System.out.println("\n--- Gym Merchandise ---");
@@ -307,6 +357,9 @@ public class GymManagementApp {
         }
     }
 
+    /**
+     * Trainer menu providing access to work out class management and membership purchasing.
+     */
     private void trainerMenu(User trainer) {
         boolean stay = true;
         while (stay) {
@@ -351,8 +404,12 @@ public class GymManagementApp {
         }
     }
 
+    /**
+     * Creates a new workout class for the trainer.
+     * Collects class details and schedules the class.
+     */
     private void createWorkoutClass(User trainer) {
-        System.out.print("Enter workout class type (e.g. Yoga, HIIT): ");
+        System.out.print("Enter workout class type (e.g. Yoga): ");
         String type = scanner.nextLine().trim();
 
         System.out.print("Enter class description: ");
@@ -384,6 +441,9 @@ public class GymManagementApp {
         }
     }
 
+    /**
+     * Updates an existing workout class owned by the trainer.
+     */
     private void updateWorkoutClass(User trainer) {
         System.out.print("Enter workout class ID to update: ");
         String idStr = scanner.nextLine().trim();
@@ -424,6 +484,9 @@ public class GymManagementApp {
         }
     }
 
+    /**
+     * Deletes a workout class owned by the trainer.
+     */
     private void deleteWorkoutClass(User trainer) {
         System.out.print("Enter workout class ID to delete: ");
         String idStr = scanner.nextLine().trim();
@@ -441,6 +504,9 @@ public class GymManagementApp {
         }
     }
 
+    /**
+     * Displays all workout classes created by the trainer.
+     */
     private void viewTrainerClasses(User trainer) {
         List<WorkoutClass> classes = workoutClassService.getClassesForTrainer(trainer.getUserId());
         System.out.println("\n--- My Workout Classes ---");
@@ -449,6 +515,10 @@ public class GymManagementApp {
         }
     }
 
+    /**
+     * Purchases a membership for a user (trainer or member).
+     * Collects membership type, description, cost, and duration.
+     */
     private void purchaseMembershipForUser(User user) {
         System.out.print("Enter membership type (e.g. Monthly, Annual): ");
         String type = scanner.nextLine().trim();
@@ -480,6 +550,9 @@ public class GymManagementApp {
         }
     }
 
+    /**
+     * Member menu providing access to browse classes, view expenses, purchase membership, and view merchandise.
+     */
     private void memberMenu(User member) {
         boolean stay = true;
         while (stay) {
@@ -516,6 +589,9 @@ public class GymManagementApp {
         }
     }
 
+    /**
+     * Displays all available workout classes to members.
+     */
     private void browseWorkoutClasses() {
         List<WorkoutClass> classes = workoutClassService.getAllClasses();
         System.out.println("\n--- Available Workout Classes ---");
@@ -524,6 +600,9 @@ public class GymManagementApp {
         }
     }
 
+    /**
+     * Displays all memberships and total expenses for a specific member.
+     */
     private void viewMemberExpenses(User member) {
         BigDecimal total = membershipService.getTotalExpensesForMember(member.getUserId());
         List<Membership> memberships = membershipService.getMembershipsForMember(member.getUserId());
