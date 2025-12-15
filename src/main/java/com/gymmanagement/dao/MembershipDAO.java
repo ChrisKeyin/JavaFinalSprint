@@ -13,19 +13,20 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Data Access Object (DAO) for managing gym memberships in the database.
- * Provides methods to create, retrieve, and calculate revenue from membership records.
+ * Data Access Object (DAO) for managing {@link Membership} entities.
+ * <p>
+ * Provides methods to create memberships, list memberships by user,
+ * list all memberships, and calculate total revenue.
  */
 public class MembershipDAO {
 
     private static final Logger LOGGER = LoggerUtil.getLogger();
 
     /**
-     * Creates a new membership record in the database.
-     * Inserts membership details and retrieves the auto-generated ID.
-     * 
-     * @param membership the Membership object containing membership details
-     * @return the created Membership object with the generated ID, or null if creation fails
+     * Inserts a new membership into the database.
+     *
+     * @param membership the membership to create
+     * @return the created membership with generated ID, or {@code null} if creation failed
      */
     public Membership createMembership(Membership membership) {
         String sql = "INSERT INTO memberships " +
@@ -35,26 +36,22 @@ public class MembershipDAO {
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            // Set the prepared statement parameters
             stmt.setString(1, membership.getMembershipType());
             stmt.setString(2, membership.getMembershipDescription());
             stmt.setBigDecimal(3, membership.getMembershipCost());
             stmt.setInt(4, membership.getMemberId());
             stmt.setDate(5, Date.valueOf(membership.getStartDate()));
-            // Handle nullable end_date field
             if (membership.getEndDate() != null) {
                 stmt.setDate(6, Date.valueOf(membership.getEndDate()));
             } else {
                 stmt.setNull(6, Types.DATE);
             }
 
-            // Execute the insert and check if rows were affected
             int rows = stmt.executeUpdate();
             if (rows == 0) {
                 throw new SQLException("Creating membership failed, no rows affected.");
             }
 
-            // Retrieve the auto-generated ID and set it on the membership object
             try (ResultSet rs = stmt.getGeneratedKeys()) {
                 if (rs.next()) {
                     membership.setMembershipId(rs.getInt(1));
@@ -72,11 +69,10 @@ public class MembershipDAO {
     }
 
     /**
-     * Retrieves all memberships for a specific member.
-     * Results are ordered by start_date in descending order (most recent first).
-     * 
-     * @param memberId the ID of the member to retrieve memberships for
-     * @return a list of Membership objects for the specified member, or empty list if none found
+     * Returns all memberships for a specific member, ordered by start date descending.
+     *
+     * @param memberId the ID of the member
+     * @return list of memberships for that member
      */
     public List<Membership> getMembershipsByMemberId(int memberId) {
         String sql = "SELECT * FROM memberships WHERE member_id = ? ORDER BY start_date DESC";
@@ -86,7 +82,6 @@ public class MembershipDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, memberId);
-            // Map each row from the result set to a Membership object
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     memberships.add(mapRowToMembership(rs));
@@ -100,10 +95,9 @@ public class MembershipDAO {
     }
 
     /**
-     * Retrieves all membership records from the database.
-     * Results are ordered by membership_id.
-     * 
-     * @return a list of all Membership objects, or empty list if none found or on error
+     * Returns all memberships in the system.
+     *
+     * @return list of all memberships
      */
     public List<Membership> getAllMemberships() {
         String sql = "SELECT * FROM memberships ORDER BY membership_id";
@@ -113,7 +107,6 @@ public class MembershipDAO {
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
-            // Map each row from the result set to a Membership object
             while (rs.next()) {
                 memberships.add(mapRowToMembership(rs));
             }
@@ -126,9 +119,8 @@ public class MembershipDAO {
 
     /**
      * Calculates the total revenue from all memberships.
-     * Sums up all membership costs from the database.
-     * 
-     * @return the total membership revenue as BigDecimal, or zero if no memberships or on error
+     *
+     * @return sum of all membership costs, or {@link BigDecimal#ZERO} if none
      */
     public BigDecimal getTotalRevenue() {
         String sql = "SELECT COALESCE(SUM(membership_cost), 0) AS total_revenue FROM memberships";
@@ -137,7 +129,6 @@ public class MembershipDAO {
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
-            // Return the aggregated total revenue from the database query
             if (rs.next()) {
                 return rs.getBigDecimal("total_revenue");
             }
@@ -148,12 +139,11 @@ public class MembershipDAO {
     }
 
     /**
-     * Helper method to map a database result set row to a Membership object.
-     * Converts SQL Date objects to LocalDate for date handling.
-     * 
-     * @param rs the ResultSet positioned at the row to map
-     * @return a new Membership object populated with data from the result set row
-     * @throws SQLException if there's an error accessing the result set
+     * Maps a result set row to a {@link Membership} object.
+     *
+     * @param rs the result set positioned on a membership row
+     * @return the mapped {@link Membership}
+     * @throws SQLException if an error occurs reading from the result set
      */
     private Membership mapRowToMembership(ResultSet rs) throws SQLException {
         int id = rs.getInt("membership_id");
@@ -164,7 +154,6 @@ public class MembershipDAO {
         Date start = rs.getDate("start_date");
         Date end = rs.getDate("end_date");
 
-        // Convert SQL dates to LocalDate, handling null values
         LocalDate startDate = start != null ? start.toLocalDate() : null;
         LocalDate endDate = end != null ? end.toLocalDate() : null;
 

@@ -12,20 +12,20 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Data Access Object (DAO) for managing workout classes in the database.
- * Provides methods to create, update, retrieve, and delete workout class records.
- * Ensures that only the trainer who owns a class can modify or delete it.
+ * Data Access Object (DAO) for managing {@link WorkoutClass} entities.
+ * <p>
+ * Trainers use this indirectly through the service layer to create,
+ * update, delete, and list workout classes.
  */
 public class WorkoutClassDAO {
 
     private static final Logger LOGGER = LoggerUtil.getLogger();
 
     /**
-     * Creates a new workout class in the database.
-     * Inserts the class details and retrieves the auto-generated ID.
-     * 
-     * @param workoutClass the WorkoutClass object containing class details
-     * @return the created WorkoutClass object with the generated ID, or null if creation fails
+     * Inserts a new workout class into the database.
+     *
+     * @param workoutClass the class to create
+     * @return the created class with generated ID, or {@code null} if creation failed
      */
     public WorkoutClass createWorkoutClass(WorkoutClass workoutClass) {
         String sql = "INSERT INTO workout_classes " +
@@ -35,20 +35,17 @@ public class WorkoutClassDAO {
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            // Set the prepared statement parameters
             stmt.setString(1, workoutClass.getWorkoutClassType());
             stmt.setString(2, workoutClass.getWorkoutClassDescription());
             stmt.setInt(3, workoutClass.getTrainerId());
             stmt.setTimestamp(4, Timestamp.valueOf(workoutClass.getScheduleTime()));
             stmt.setInt(5, workoutClass.getCapacity());
 
-            // Execute the insert and check if rows were affected
             int rows = stmt.executeUpdate();
             if (rows == 0) {
                 throw new SQLException("Creating workout class failed, no rows affected.");
             }
 
-            // Retrieve the auto-generated ID and set it on the workout class object
             try (ResultSet rs = stmt.getGeneratedKeys()) {
                 if (rs.next()) {
                     workoutClass.setWorkoutClassId(rs.getInt(1));
@@ -66,11 +63,10 @@ public class WorkoutClassDAO {
     }
 
     /**
-     * Updates an existing workout class.
-     * Only allows updates if the class belongs to the specified trainer (ownership check).
-     * 
-     * @param workoutClass the WorkoutClass object containing updated details
-     * @return true if the update was successful, false otherwise
+     * Updates an existing workout class. Trainers may only update classes they own.
+     *
+     * @param workoutClass updated class data, including ID and trainer ID
+     * @return {@code true} if the class was updated; {@code false} otherwise
      */
     public boolean updateWorkoutClass(WorkoutClass workoutClass) {
         String sql = "UPDATE workout_classes SET " +
@@ -83,16 +79,13 @@ public class WorkoutClassDAO {
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            // Set the prepared statement parameters
             stmt.setString(1, workoutClass.getWorkoutClassType());
             stmt.setString(2, workoutClass.getWorkoutClassDescription());
             stmt.setTimestamp(3, Timestamp.valueOf(workoutClass.getScheduleTime()));
             stmt.setInt(4, workoutClass.getCapacity());
             stmt.setInt(5, workoutClass.getWorkoutClassId());
-            // Check ownership: only allow update if trainer_id matches
             stmt.setInt(6, workoutClass.getTrainerId());
 
-            // Execute the update and check if any rows were affected
             int rows = stmt.executeUpdate();
             return rows > 0;
 
@@ -103,12 +96,11 @@ public class WorkoutClassDAO {
     }
 
     /**
-     * Deletes a workout class from the database.
-     * Only allows deletion if the class belongs to the specified trainer (ownership check).
-     * 
-     * @param workoutClassId the ID of the workout class to delete
-     * @param trainerId the ID of the trainer who owns the class
-     * @return true if the deletion was successful, false otherwise
+     * Deletes a workout class. Trainers may only delete classes they own.
+     *
+     * @param workoutClassId the ID of the class to delete
+     * @param trainerId      the ID of the trainer who owns the class
+     * @return {@code true} if the class was deleted; {@code false} otherwise
      */
     public boolean deleteWorkoutClass(int workoutClassId, int trainerId) {
         String sql = "DELETE FROM workout_classes WHERE workout_class_id = ? AND trainer_id = ?";
@@ -117,10 +109,8 @@ public class WorkoutClassDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, workoutClassId);
-            // Check ownership: only allow deletion if trainer_id matches
             stmt.setInt(2, trainerId);
 
-            // Execute the delete and check if any rows were affected
             int rows = stmt.executeUpdate();
             return rows > 0;
 
@@ -131,10 +121,9 @@ public class WorkoutClassDAO {
     }
 
     /**
-     * Retrieves all workout classes from the database.
-     * Results are ordered by schedule_time.
-     * 
-     * @return a list of all WorkoutClass objects, or empty list if none found or on error
+     * Returns all workout classes in the system.
+     *
+     * @return list of all classes
      */
     public List<WorkoutClass> getAllClasses() {
         String sql = "SELECT * FROM workout_classes ORDER BY schedule_time";
@@ -144,7 +133,6 @@ public class WorkoutClassDAO {
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
-            // Map each row from the result set to a WorkoutClass object
             while (rs.next()) {
                 classes.add(mapRowToWorkoutClass(rs));
             }
@@ -157,11 +145,10 @@ public class WorkoutClassDAO {
     }
 
     /**
-     * Retrieves all workout classes created by a specific trainer.
-     * Results are ordered by schedule_time.
-     * 
-     * @param trainerId the ID of the trainer to retrieve classes for
-     * @return a list of WorkoutClass objects created by the trainer, or empty list if none found
+     * Returns all classes owned by a specific trainer.
+     *
+     * @param trainerId the trainer's ID
+     * @return list of classes for that trainer
      */
     public List<WorkoutClass> getClassesByTrainerId(int trainerId) {
         String sql = "SELECT * FROM workout_classes WHERE trainer_id = ? ORDER BY schedule_time";
@@ -171,7 +158,6 @@ public class WorkoutClassDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, trainerId);
-            // Map each row from the result set to a WorkoutClass object
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     classes.add(mapRowToWorkoutClass(rs));
@@ -186,12 +172,11 @@ public class WorkoutClassDAO {
     }
 
     /**
-     * Helper method to map a database result set row to a WorkoutClass object.
-     * Converts SQL Timestamp objects to LocalDateTime for date/time handling.
-     * 
-     * @param rs the ResultSet positioned at the row to map
-     * @return a new WorkoutClass object populated with data from the result set row
-     * @throws SQLException if there's an error accessing the result set
+     * Maps a result set row to a {@link WorkoutClass}.
+     *
+     * @param rs result set positioned on a workout class row
+     * @return the mapped {@link WorkoutClass}
+     * @throws SQLException if something goes wrong reading from the result set
      */
     private WorkoutClass mapRowToWorkoutClass(ResultSet rs) throws SQLException {
         int id = rs.getInt("workout_class_id");
@@ -201,7 +186,6 @@ public class WorkoutClassDAO {
         Timestamp ts = rs.getTimestamp("schedule_time");
         int capacity = rs.getInt("capacity");
 
-        // Convert SQL Timestamp to LocalDateTime, handling null values
         LocalDateTime scheduleTime = ts != null ? ts.toLocalDateTime() : null;
 
         return new WorkoutClass(id, type, description, trainerId, scheduleTime, capacity);
